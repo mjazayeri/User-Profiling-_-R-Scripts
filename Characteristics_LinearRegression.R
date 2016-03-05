@@ -1,7 +1,8 @@
 
-liwc.path <- "/Users/Mehdi/Desktop/ML/Project/Models/LIWC.csv"
+liwc.path <- "/Users/Mehdi/Desktop/ML/Project/Processed Data/LIWC.csv"
 likes.path <- "/Users/Mehdi/Desktop/ML/Project/data/training/relation/relation.csv"
-train.length <- 7000
+dir.models <- "/Users/Mehdi/Desktop/ML/Project/Models/"
+train.length <- 7500
 ################################################
 
 # read liwc file
@@ -33,30 +34,40 @@ liwc.ope <- liwc[1:train.length, c(-83,-84,-85,-86)]
 reg.ope <- lm(formula = liwc.ope$ope~., liwc.ope)
 fit.ope <- rpart(liwc.ope$ope ~., liwc.ope, method = "anova", control = ctrl)
 pfit.ope <- prune(fit.ope, cp = fit.ope$cptable[which.min(fit.ope$cptable[,"xerror"]),"CP"])
+saveRDS(reg.ope, paste(dir.models,"regression_ope.rds", sep = ""))
+saveRDS(pfit.ope, paste(dir.models,"tree_ope.rds", sep = ""))
 
 # create regression/tree based on neu
 liwc.neu <- liwc[1:train.length, c(-82,-83,-84,-85)]
 reg.neu <- lm(formula = liwc.neu$neu~., liwc.neu)
 fit.neu <- rpart(liwc.neu$neu ~., liwc.neu, control = ctrl)
 pfit.neu <- prune(fit.neu, cp = fit.neu$cptable[which.min(fit.neu$cptable[,"xerror"]),"CP"])
+saveRDS(reg.neu, paste(dir.models,"regression_neu.rds", sep = ""))
+saveRDS(pfit.neu, paste(dir.models,"tree_neu.rds", sep = ""))
 
 # create regression/tree based on ext
 liwc.ext <- liwc[1:train.length, c(-82,-83,-85,-86)]
 reg.ext <- lm(formula = liwc.ext$ext~., liwc.ext)
 fit.ext <- rpart(liwc.ext$ext ~., liwc.ext, control= ctrl)
 pfit.ext <- prune(fit.ext, cp = fit.ext$cptable[which.min(fit.ext$cptable[,"xerror"]),"CP"])
+saveRDS(reg.ext, paste(dir.models,"regression_ext.rds", sep = ""))
+saveRDS(pfit.ext, paste(dir.models,"tree_ext.rds", sep = ""))
 
 # create regression/tree based on agr
 liwc.agr <- liwc[1:train.length, c(-82,-83,-84,-86)]
 reg.agr <- lm(liwc.agr$agr~., liwc.agr)
 fit.agr <- rpart(liwc.agr$agr ~., liwc.agr, control = ctrl)
 pfit.agr <- prune(fit.agr, cp = fit.agr$cptable[which.min(fit.agr$cptable[,"xerror"]),"CP"])
+saveRDS(reg.agr, paste(dir.models,"regression_agr.rds", sep = ""))
+saveRDS(pfit.agr, paste(dir.models,"tree_agr.rds", sep = ""))
 
 # create regression/tree based on con
 liwc.con <- liwc[1:train.length, c(-82,-84,-85,-86)]
 reg.con <- lm(formula = liwc.con$con~., liwc.con)
 fit.con <- rpart(liwc.con$con ~., liwc.con, control = ctrl)
 pfit.con <- prune(fit.con, cp = fit.con$cptable[which.min(fit.con$cptable[,"xerror"]),"CP"])
+saveRDS(reg.con, paste(dir.models,"regression_con.rds", sep = ""))
+saveRDS(pfit.con, paste(dir.models,"tree_con.rds", sep = ""))
 
 ####################### TEST #######################
 str <- 7001
