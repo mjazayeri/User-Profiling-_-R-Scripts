@@ -1,12 +1,14 @@
+######################## CONSTANTS ########################
 
 liwc.path <- "/Users/Mehdi/Desktop/ML/Project/Processed Data/LIWC.csv"
 likes.path <- "/Users/Mehdi/Desktop/ML/Project/data/training/relation/relation.csv"
 dir.models <- "/Users/Mehdi/Desktop/ML/Project/Models/"
 train.length <- 7500
-################################################
 
-# read liwc file
-# filter irrelevant columns : age, gender, userId, Seg
+######################## TRAINING ########################
+
+# read liwc file and adds Number of Likes column to it
+# filters irrelevant columns : age, gender, userId, Seg
 read.liwc <- function() {
   col.class <- c("character", rep("numeric",82), "factor", "factor", rep("numeric", 5))
   liwc <- read.csv(liwc.path, header = TRUE, colClasses = col.class)
@@ -17,6 +19,8 @@ read.liwc <- function() {
   likes <- read.csv(likes.path, header = T, colClasses = c("numeric","character","numeric"))
   likes.frame <- as.data.frame(table(likes$userid))
   names(likes.frame) <- c("userid", "likesCount")
+  
+  #order the likes to match liwc rows
   likes.frame <- likes.frame[match(liwc$userId, likes.frame$userid), ]
   likesCount <- likes.frame$likesCount
   liwc <- cbind(liwc, likesCount)
@@ -27,6 +31,8 @@ read.liwc <- function() {
 
 library(rpart)
 liwc <- read.liwc()
+
+#a grow control for regression tree
 ctrl <- rpart.control(minsplit=2, minbucket=1, cp=0.0001)
 
 # create regression/tree based on ope

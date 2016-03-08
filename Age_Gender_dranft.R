@@ -136,9 +136,11 @@ post.corpus <- tm_map(post.corpus, stemDocument)
 
 
 tdm <- DocumentTermMatrix(post.corpus)
-tdm2 <- removeSparseTerms(tdm, sparse=0.99)
 lowfreq <- findFreqTerms(tdm2, lowfreq = 0, highfreq = 100)
 
 a <- tm_map(post.corpus, removeWords, lowfreq)
 
-tdm <- DocumentTermMatrix(a, control = list(tokenize = BigramTokenizer))
+tdm2 <- DocumentTermMatrix(a, control = list(tokenize = BigramTokenizer))
+tdm2 <- removeSparseTerms(tdm2, sparse=0.995)
+
+tdmatrix <- as.matrix(tdm2)
