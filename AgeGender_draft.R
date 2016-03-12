@@ -17,22 +17,6 @@ readUserProfiles <- function() {
   return(profile)
 }
 
-#reads LIWC, sorts it to match user profiles and removes irrelevant columns
-readLIWC <- function (profiles) {
-  data <- read.csv(paste(modelsPath, "LIWC.csv", sep = ""), header=T)
-  # frequencyTable <- read.csv(paste(modelsPath,"frequencyTable.csv",sep=""))
-  
-  #order the liwc to match with userProfile 
-  data <- data[match(profiles$userid, data$userId), ]
-  
-  #remove repeatitive and irrelevant columns 
-  col.to.remove <- colnames(profiles)
-  col.to.remove <- c(col.to.remove, "userId")
-  data <- data[, !(names(data) %in% col.to.remove)]
-  
-  return (data)
-}
-
 #read post of a user, filters the post and converts it to lowercase
 readUserPost <- function(userId) {
   file.path = paste(postsPath, userId, ".txt", sep="")

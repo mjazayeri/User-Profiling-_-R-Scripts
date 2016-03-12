@@ -63,6 +63,7 @@ ext.forest.error <- sqrt(sum((predict(forest.ext, ope.test) - liwc$ext ) ^ 2) / 
 agr.forest.error <- sqrt(sum((predict(forest.agr, ope.test) - liwc$agr ) ^ 2) / 2000)
 con.forest.error <- sqrt(sum((predict(forest.con, ope.test) - liwc$con ) ^ 2) / 2000)
 
-result <- cbind(ope.tree.error, neu.tree.error, ext.tree.error, agr.tree.error, con.tree.error)
-result <- rbind(result, cbind(ope.reg.error, neu.reg.error, ext.reg.error, agr.reg.error, con.reg.error))
+
+result <- cbind(ope.reg.error, neu.reg.error, ext.reg.error, agr.reg.error, con.reg.error)
+result <- rbind(result, cbind(ope.tree.error, neu.tree.error, ext.tree.error, agr.tree.error, con.tree.error))
 result <- rbind(result, cbind(ope.forest.error, neu.forest.error, ext.forest.error, agr.forest.error, con.forest.error))

@@ -1,6 +1,8 @@
 
-path.profile <- "/Users/Mehdi/Desktop/ML/Project/data/training/profile/profile.csv"
-dir.post <- "/Users/Mehdi/Desktop/ML/Project/data/training/text/"
+#path.profile <- "/Users/Mehdi/Desktop/ML/Project/data/training/profile/profile.csv"
+path.profile <- "/Users/Mehdi/Desktop/ML/Project/data/public-test-data/profile/profile.csv"
+#dir.post <- "/Users/Mehdi/Desktop/ML/Project/data/training/text/"
+dir.post <- "/Users/Mehdi/Desktop/ML/Project/data/public-test-data/text"
 dir.models <- "/Users/Mehdi/Desktop/ML/Project/Models/"
 training.size <- 7500
 
@@ -9,6 +11,24 @@ training.size <- 7500
 read.profiles <- function(profilesPath, start, end) {
   col.class <- c("integer","character", "numeric", "factor", rep("numeric",5))
   profiles <- read.csv(path.profile, header = T, colClasses = col.class)[start : end, ]
+  age <- cut(profiles$age, 
+             breaks = c(-Inf, 24, 34, 49, Inf), 
+             labels = c("xx-24", "25-34", "35-49", "50-xx"), 
+             right = T)
+  profiles$age <- age
+  profiles$X <- NULL
+  profiles$ope <- NULL
+  profiles$con <- NULL
+  profiles$ext <- NULL
+  profiles$agr <- NULL
+  profiles$neu <- NULL
+  
+  return (profiles)
+}
+
+read.profiles <- function(profilesPath) {
+  profiles <- read.csv(path.profile, header = T)
+  profiles$age <- as.numeric(profiles$age)
   age <- cut(profiles$age, 
              breaks = c(-Inf, 24, 34, 49, Inf), 
              labels = c("xx-24", "25-34", "35-49", "50-xx"), 
@@ -85,10 +105,23 @@ createAgeModel <- function(profiles, documentTermMatrix) {
   return(model)
 }
 
-profiles <- read.profiles(path.profile, 1, training.size)
+profiles <- read.profiles(path.profile)
 DTM <- createDocumentTerm(profiles, dir.post)
 termMatrix <- as.matrix(DTM)
-freqTerms <- findFreqTerms(DTM, lowfreq = 100, highfreq = Inf)
+#freqTerms <- findFreqTerms(DTM, lowfreq = 100, highfreq = Inf)
+freqTerms <- read.csv("/Users/Mehdi/Desktop/ML/Project/Processed Data/freqTerms.csv")[,2]
+
+foundTermsIndex <- colnames(termMatrix) %in% freqTerms
+features <- termMatrix[, foundTermsIndex]
+featuresName <- colnames(features)
+missingTermsIndex <- !(freqTerms %in% featuresName)
+missingTerms <- featuresName[missingTermsIndex]
+
+missingMatrix <- matrix(0, nrow(termMatrix), length(missingTerms))
+colnames(missingMatrix) <- missingTerms
+
+features <- cbind(features, missingMatrix)
+
 features <- termMatrix[, freqTerms]
 user_term <- cbind.data.frame(profiles, features)
 write.csv(user_term, "/Users/Mehdi/Desktop/ML/Project/Processed Data/user_term.csv")
@@ -114,33 +147,3 @@ length(corrects)/length(age.results)
 gender.results <- predict(model.gender, test.matrix)
 corrects <- gender.results[gender.results == test.data$gender]
 length(corrects)/length(gender.results)
-
-#-------------------------------------------------------------
-
-profiles <- read.profiles(path.profile, 1, training.size)
-setwd(dir.post)
-post <- do.call("rbind",lapply(profiles$userid, FUN = read.post))
-
-library(NLP)
-library(tm)
-library(SnowballC)
-
-post.corpus <- Corpus(VectorSource(post))
-post.corpus <- tm_map(post.corpus, content_transformer(tolower))
-post.corpus <- tm_map(post.corpus, PlainTextDocument)
-post.corpus <- tm_map(post.corpus, removeNumbers)
-post.corpus <- tm_map(post.corpus, removePunctuation)
-post.corpus <- tm_map(post.corpus, stripWhitespace)
-post.corpus <- tm_map(post.corpus, removeWords, stopwords(kind = "en"))
-post.corpus <- tm_map(post.corpus, stemDocument)
-
-
-tdm <- DocumentTermMatrix(post.corpus)
-lowfreq <- findFreqTerms(tdm2, lowfreq = 0, highfreq = 100)
-
-a <- tm_map(post.corpus, removeWords, lowfreq)
-
-tdm2 <- DocumentTermMatrix(a, control = list(tokenize = BigramTokenizer))
-tdm2 <- removeSparseTerms(tdm2, sparse=0.995)
-
-tdmatrix <- as.matrix(tdm2)
